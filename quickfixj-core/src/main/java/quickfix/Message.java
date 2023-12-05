@@ -770,6 +770,14 @@ public class Message extends FieldMap {
                 } else {
                     throw newFieldExceptionMissingDelimiter(groupCountTag, firstField, tag);
                 }
+                // Workaround when known message field is inside the group when group parsing is not finished yet
+                // TODO: cover with tests, add optional parameter, disabled by default, add documentation
+            } else if (parentDD.isMsgField(msgType, tag) && !groupDataDictionary.isField(tag) && parent.getGroupCount(groupCountTag) < declaredGroupCount - 1) {
+                if (group != null) {
+                    group.setField(field);
+                } else {
+                    throw newFieldExceptionMissingDelimiter(groupCountTag, firstField, tag);
+                }
             } else {
                 // QFJ-169/QFJ-791: handle unknown repeating group fields in the body
                 if (!isTrailerField(tag) && !(DataDictionary.HEADER_ID.equals(msgType) || isHeaderField(field, dd))) {
